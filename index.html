@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Traffic Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .signal-light {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .intersection {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            background: #333;
+        }
+
+        .road {
+            position: absolute;
+            background: #666;
+        }
+
+        .road-h {
+            width: 100%;
+            height: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .road-v {
+            width: 80px;
+            height: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .lane-marking {
+            position: absolute;
+            background: white;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .emergency-active {
+            animation: blink 1s infinite;
+            background-color: #ff0000 !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Smart Traffic Management System</h1>
+            <p class="text-gray-600">AI-Powered Traffic Control & Monitoring</p>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Traffic Visualization -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Traffic Intersection</h2>
+                <div class="flex justify-center">
+                    <div class="intersection">
+                        <div class="road road-h"></div>
+                        <div class="road road-v"></div>
+                    </div>
+                </div>
+                <div class="mt-4 grid grid-cols-2 gap-4">
+                    <div class="signal-controls p-4 bg-gray-100 rounded">
+                        <h3 class="font-medium mb-2">North-South Signal</h3>
+                        <div class="flex">
+                            <div id="ns-red" class="signal-light bg-red-500"></div>
+                            <div id="ns-yellow" class="signal-light bg-gray-300"></div>
+                            <div id="ns-green" class="signal-light bg-gray-300"></div>
+                        </div>
+                    </div>
+                    <div class="signal-controls p-4 bg-gray-100 rounded">
+                        <h3 class="font-medium mb-2">East-West Signal</h3>
+                        <div class="flex">
+                            <div id="ew-red" class="signal-light bg-gray-300"></div>
+                            <div id="ew-yellow" class="signal-light bg-gray-300"></div>
+                            <div id="ew-green" class="signal-light bg-green-500"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Traffic Analytics -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Real-Time Analytics</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 bg-blue-100 rounded">
+                        <h3 class="font-medium mb-2">Vehicle Count</h3>
+                        <p id="vehicle-count" class="text-2xl font-bold">0</p>
+                    </div>
+                    <div class="p-4 bg-green-100 rounded">
+                        <h3 class="font-medium mb-2">Average Wait Time</h3>
+                        <p id="wait-time" class="text-2xl font-bold">0s</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h3 class="font-medium mb-2">Traffic Density</h3>
+                    <div class="relative pt-1">
+                        <div class="flex mb-2 items-center justify-between">
+                            <div>
+                                <span id="density-label" class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-200">
+                                    Low
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <span id="density-percentage" class="text-xs font-semibold inline-block text-blue-600">
+                                    30%
+                                </span>
+                            </div>
+                        </div>
+                        <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-blue-200">
+                            <div id="density-bar" style="width:30%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Controls -->
+        <div class="mt-6 bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Emergency Controls</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button id="emergency-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                    <i class="bi bi-exclamation-triangle mr-2"></i>Trigger Emergency Mode
+                </button>
+                <button id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                    <i class="bi bi-arrow-counterclockwise mr-2"></i>Reset System
+                </button>
+                <button id="ai-mode-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                    <i class="bi bi-cpu mr-2"></i>Toggle AI Mode
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isEmergencyMode = false;
+        let isAIMode = true;
+        let vehicleCount = 0;
+        let waitTime = 0;
+
+        // Simulated traffic data
+        function updateTrafficData() {
+            if (!isEmergencyMode) {
+                vehicleCount = Math.floor(Math.random() * 50) + 10;
+                waitTime = Math.floor(Math.random() * 30) + 5;
+                const density = Math.floor(Math.random() * 70) + 30;
+
+                document.getElementById('vehicle-count').textContent = vehicleCount;
+                document.getElementById('wait-time').textContent = waitTime + 's';
+                document.getElementById('density-percentage').textContent = density + '%';
+                document.getElementById('density-bar').style.width = density + '%';
+
+                if (density < 40) {
+                    document.getElementById('density-label').textContent = 'Low';
+                    document.getElementById('density-label').classList.remove('bg-red-200', 'text-red-600', 'bg-yellow-200', 'text-yellow-600');
+                    document.getElementById('density-label').classList.add('bg-blue-200', 'text-blue-600');
+                } else if (density < 70) {
+                    document.getElementById('density-label').textContent = 'Medium';
+                    document.getElementById('density-label').classList.remove('bg-red-200', 'text-red-600', 'bg-blue-200', 'text-blue-600');
+                    document.getElementById('density-label').classList.add('bg-yellow-200', 'text-yellow-600');
+                } else {
+                    document.getElementById('density-label').textContent = 'High';
+                    document.getElementById('density-label').classList.remove('bg-blue-200', 'text-blue-600', 'bg-yellow-200', 'text-yellow-600');
+                    document.getElementById('density-label').classList.add('bg-red-200', 'text-red-600');
+                }
+            }
+        }
+
+        // Traffic signal control
+        function controlTrafficSignals() {
+            if (!isEmergencyMode) {
+                const signals = ['ns-red', 'ns-yellow', 'ns-green', 'ew-red', 'ew-yellow', 'ew-green'];
+                signals.forEach(signal => {
+                    document.getElementById(signal).classList.remove('emergency-active');
+                    document.getElementById(signal).style.backgroundColor = '#d1d5db';
+                });
+
+                if (Math.random() > 0.5) {
+                    document.getElementById('ns-green').style.backgroundColor = '#22c55e';
+                    document.getElementById('ew-red').style.backgroundColor = '#ef4444';
+                } else {
+                    document.getElementById('ns-red').style.backgroundColor = '#ef4444';
+                    document.getElementById('ew-green').style.backgroundColor = '#22c55e';
+                }
+            }
+        }
+
+        // Emergency mode handler
+        document.getElementById('emergency-btn').addEventListener('click', () => {
+            isEmergencyMode = !isEmergencyMode;
+            const signals = ['ns-red', 'ns-yellow', 'ns-green', 'ew-red', 'ew-yellow', 'ew-green'];
+            
+            if (isEmergencyMode) {
+                signals.forEach(signal => {
+                    document.getElementById(signal).classList.add('emergency-active');
+                });
+                document.getElementById('emergency-btn').classList.add('bg-yellow-500');
+                document.getElementById('emergency-btn').classList.remove('bg-red-500');
+                document.getElementById('emergency-btn').textContent = 'Emergency Mode Active';
+            } else {
+                signals.forEach(signal => {
+                    document.getElementById(signal).classList.remove('emergency-active');
+                });
+                document.getElementById('emergency-btn').classList.remove('bg-yellow-500');
+                document.getElementById('emergency-btn').classList.add('bg-red-500');
+                document.getElementById('emergency-btn').innerHTML = '<i class="bi bi-exclamation-triangle mr-2"></i>Trigger Emergency Mode';
+            }
+        });
+
+        // Reset system
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            isEmergencyMode = false;
+            isAIMode = true;
+            vehicleCount = 0;
+            waitTime = 0;
+            document.getElementById('emergency-btn').classList.remove('bg-yellow-500');
+            document.getElementById('emergency-btn').classList.add('bg-red-500');
+            document.getElementById('emergency-btn').innerHTML = '<i class="bi bi-exclamation-triangle mr-2"></i>Trigger Emergency Mode';
+            document.getElementById('ai-mode-btn').classList.remove('bg-gray-500');
+            document.getElementById('ai-mode-btn').classList.add('bg-blue-500');
+            updateTrafficData();
+            controlTrafficSignals();
+        });
+
+        // Toggle AI mode
+        document.getElementById('ai-mode-btn').addEventListener('click', () => {
+            isAIMode = !isAIMode;
+            if (isAIMode) {
+                document.getElementById('ai-mode-btn').classList.remove('bg-gray-500');
+                document.getElementById('ai-mode-btn').classList.add('bg-blue-500');
+            } else {
+                document.getElementById('ai-mode-btn').classList.remove('bg-blue-500');
+                document.getElementById('ai-mode-btn').classList.add('bg-gray-500');
+            }
+        });
+
+        // Update traffic data every 3 seconds
+        setInterval(updateTrafficData, 3000);
+        setInterval(controlTrafficSignals, 5000);
+
+        // Initial update
+        updateTrafficData();
+        controlTrafficSignals();
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
